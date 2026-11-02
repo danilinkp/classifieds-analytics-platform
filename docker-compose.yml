@@ -86,11 +86,13 @@ services:
       retries: 30
 
   # One-shot job: creates the ClickHouse connection, datasets, charts and dashboards
-  # through the Superset API. Idempotent, so it runs on every `docker compose up`.
+  # through the Superset API. Idempotent: safe to re-run after any change in bootstrap/.
   superset-bootstrap:
     build: ./superset
     command: python /app/bootstrap/bootstrap.py
     restart: "no"
+    # Needs the marts to exist, so it is run explicitly after the first backfill.
+    profiles: [bootstrap]
     environment:
       <<: *clickhouse-env
       SUPERSET_URL: http://superset:8088

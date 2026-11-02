@@ -2,13 +2,16 @@ COMPOSE = docker compose
 GEN = $(COMPOSE) exec airflow python -m marketplace_gen
 DBT = $(COMPOSE) exec airflow dbt
 
-.PHONY: up down reset logs backfill dbt-build dbt-test ch dashboards screenshots
+.PHONY: init up down reset logs backfill dbt-build dbt-test ch dashboards screenshots
 
 .env:
 	cp .env.example .env
 
+# Full setup from scratch: services, four months of history, dashboards.
+init: up backfill dashboards
+
 up: .env
-	$(COMPOSE) up -d --build
+	$(COMPOSE) up -d --build --wait clickhouse metadata-db airflow superset
 
 down:
 	$(COMPOSE) down
@@ -33,7 +36,7 @@ ch:
 	$(COMPOSE) exec clickhouse clickhouse-client --user $$(grep CLICKHOUSE_USER .env | cut -d= -f2) --password $$(grep CLICKHOUSE_PASSWORD .env | cut -d= -f2)
 
 dashboards:
-	$(COMPOSE) up superset-bootstrap
+	$(COMPOSE) run --rm --build superset-bootstrap
 
 screenshots:
 	docker run --rm --network marketplace-bi_default \
