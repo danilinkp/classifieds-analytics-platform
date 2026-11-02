@@ -2,7 +2,7 @@ COMPOSE = docker compose
 GEN = $(COMPOSE) exec airflow python -m marketplace_gen
 DBT = $(COMPOSE) exec airflow dbt
 
-.PHONY: up down reset logs backfill dbt-build dbt-test ch
+.PHONY: up down reset logs backfill dbt-build dbt-test ch dashboards screenshots
 
 .env:
 	cp .env.example .env
@@ -31,3 +31,12 @@ dbt-test:
 
 ch:
 	$(COMPOSE) exec clickhouse clickhouse-client --user $$(grep CLICKHOUSE_USER .env | cut -d= -f2) --password $$(grep CLICKHOUSE_PASSWORD .env | cut -d= -f2)
+
+dashboards:
+	$(COMPOSE) up superset-bootstrap
+
+screenshots:
+	docker run --rm --network marketplace-bi_default \
+		-v $(CURDIR)/scripts:/scripts:ro -v $(CURDIR)/docs/screenshots:/docs/screenshots \
+		--user $$(id -u):$$(id -g) -e HOME=/tmp --env-file .env mcr.microsoft.com/playwright/python:v1.64.1-noble \
+		bash -c "pip install -q --user --break-system-packages playwright==1.64.1 && python /scripts/screenshots.py"

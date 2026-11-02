@@ -1,6 +1,8 @@
 {#
     Liquidity = share of listings that received at least one contact within 7 days
     of publication. A cohort is complete only once all its listings are 7 days old.
+    Time to first contact is measured within the same 7-day window: otherwise recent
+    cohorts would only show their fast contacts and look better than they are.
 #}
 {{ config(order_by='(created_date, category, region)') }}
 
@@ -25,7 +27,7 @@ select
     contacted_7d / listings as liquidity_7d,
     quantileIf(0.5)(
         dateDiff('minute', l.created_at, fc.first_contact_ts) / 60,
-        fc.has_contact = 1
+        fc.has_contact = 1 and fc.first_contact_ts <= l.created_at + interval 7 day
     ) as median_hours_to_first_contact,
     l.created_date <= (select last_day from bounds) - 7 as is_complete
 from {{ ref('dim_listings') }} as l
