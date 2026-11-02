@@ -23,8 +23,8 @@ select
     concat(
         metric_title,
         if(slice_type = 'total', '', concat(' [', slice_type, ': ', slice_value, ']')),
-        ': ', formatReadableQuantity(value),
-        ' при ожидаемом ', formatReadableQuantity(expected),
+        ': ', {{ format_metric('value', 'is_ratio') }},
+        ' при ожидаемом ', {{ format_metric('expected', 'is_ratio') }},
         ' (', if(deviation_pct > 0, '+', ''), toString(round(deviation_pct * 100, 1)), '%)'
     ) as message
 from {{ ref('metric_monitoring') }}
