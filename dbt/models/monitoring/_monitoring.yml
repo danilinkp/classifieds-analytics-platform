@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: metric_daily
+    description: Все отслеживаемые метрики в длинном формате (дата, метрика, разрез, значение).
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [date, metric, slice_type, slice_value]
+
+  - name: metric_monitoring
+    description: Метрики с ожидаемым значением, коридором и статусом отклонения.
+    columns:
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [ok, warning, critical, no_baseline]
+
+  - name: metric_alerts
+    description: Отклонения метрик за пределы коридора (warning / critical).
+
+  - name: alert_drivers
+    description: Вклад сегментов в отклонение общей метрики — подсказка, где искать причину.

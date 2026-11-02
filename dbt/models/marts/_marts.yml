@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Календарь.
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+
+  - name: dim_users
+    description: Пользователи с регионом, платформой и признаком продавца.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+
+  - name: dim_listings
+    description: Объявления с текущим статусом и сроком жизни.
+    columns:
+      - name: listing_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [active, sold, expired, removed]
+
+  - name: fct_events
+    description: Клик-стрим, обогащённый атрибутами пользователя и объявления. Грейн — одно событие.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_users')
+                field: user_id
+      - name: listing_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_listings')
+                field: listing_id
+      - name: category
+        data_tests: [not_null]
+
+  - name: fct_promotions
+    description: Оплаты продвижения. Грейн — один платёж.
+    columns:
+      - name: payment_id
+        data_tests: [unique, not_null]
+      - name: amount
+        data_tests: [not_null]
+
+  - name: agg_daily_kpi
+    description: Ключевые метрики маркетплейса по дням.
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+
+  - name: agg_daily_slice
+    description: Аддитивные метрики в разрезе платформы, категории и региона пользователя.
+
+  - name: listing_liquidity
+    description: Ликвидность объявлений по когортам публикации.

@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_users
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: platform
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [android, ios, web]
+
+  - name: stg_listings
+    columns:
+      - name: listing_id
+        data_tests: [unique, not_null]
+      - name: price
+        data_tests: [not_null]
+
+  - name: stg_listing_closures
+    columns:
+      - name: listing_id
+        data_tests: [unique, not_null]
+      - name: close_reason
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [sold, expired, removed]
+
+  - name: stg_promotions
+    columns:
+      - name: payment_id
+        data_tests: [unique, not_null]
+
+  - name: stg_events
+    description: Клик-стрим без дублей.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: event_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [view, contact, favorite]

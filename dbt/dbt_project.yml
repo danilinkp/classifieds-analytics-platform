@@ -1,0 +1,32 @@
+name: marketplace
+version: "1.0.0"
+profile: marketplace
+
+model-paths: [models]
+macro-paths: [macros]
+test-paths: [tests]
+
+models:
+  marketplace:
+    staging:
+      +schema: stg
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+    monitoring:
+      +schema: monitoring
+      +materialized: table
+
+seeds:
+  marketplace:
+    +schema: monitoring
+    metric_catalog:
+      +column_types:
+        is_ratio: UInt8
+        higher_is_better: UInt8
+
+vars:
+  # Days re-processed by incremental models: covers late reloads of recent raw partitions.
+  incremental_lookback_days: 3
+  monitoring_weeks: 6

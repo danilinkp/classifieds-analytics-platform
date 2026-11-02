@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: Выгрузки из продуктовых систем маркетплейса, партиционированы по дате загрузки.
+    loaded_at_field: _loaded_at
+    freshness:
+      warn_after: { count: 26, period: hour }
+      error_after: { count: 50, period: hour }
+    tables:
+      - name: users
+        description: Регистрации пользователей.
+      - name: listings
+        description: Созданные объявления.
+      - name: listing_closures
+        description: Снятия объявлений с публикации (продано, истёк срок, удалено).
+      - name: events
+        description: Клик-стрим. Доставка at-least-once, поэтому возможны дубли event_id.
+      - name: promotions
+        description: Оплаты платного продвижения объявлений.
